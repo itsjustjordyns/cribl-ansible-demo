@@ -1,0 +1,76 @@
+---
+- name: Get stats of a file
+  ansible.builtin.stat:
+    path: /usr/share/keyrings/elasticsearch-keyring.gpg
+  register: st
+
+- name: Download and install the Public Signing Key
+  ansible.builtin.shell: wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+  when: st.stat.islnk is not defined
+
+- name: Save the repository definition to /etc/apt/sources.list.d/elastic-8.x.list
+  ansible.builtin.shell: echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
+  when: st.stat.islnk is not defined
+
+- name: Run apt-get update and install kibana
+  ansible.builtin.shell: sudo apt-get update && sudo apt-get install kibana
+
+- name: Setup kibana
+  ansible.builtin.include_vars: "{{ CUSTOM_DIR_ROLES }}/elasticsearch/vars/main.yml"
+
+- name: Create token file
+  ansible.builtin.shell: echo '---' > /etc/kibana/main.yml
+
+- name: Delete kibana service token
+  ansible.builtin.shell: curl -s -k -u elastic:{{ elastic_password }} -X DELETE https://{{ groups['elasticsearch_monitor'][0] }}:9200/_security/service/elastic/kibana/credential/token/kibana_token
+  ignore_errors: yes
+
+- name: Set kibana service token
+  ansible.builtin.shell: curl -s -k -u elastic:{{ elastic_password }} -X POST https://{{ groups['elasticsearch_monitor'][0] }}:9200/_security/service/elastic/kibana/credential/token/kibana_token?pretty| grep '"value" :' >> /etc/kibana/main.yml
+
+- name: Set elasticsearch password
+  ansible.builtin.shell: sed -i 's/"value"/"kibana_token"/g' /etc/kibana/main.yml | sed -r 's/\s+//g' /etc/kibana/main.yml
+
+- name: Store file into roles/elasticsearch/vars/main.yml
+  ansible.builtin.fetch:
+    src: /etc/kibana/main.yml
+    dest: "{{ CUSTOM_DIR_ROLES }}/kibana/vars/main.yml"
+    flat: true
+
+- name: Setup kibana
+  ansible.builtin.include_vars: "{{ CUSTOM_DIR_ROLES }}/kibana/vars/main.yml"
+
+- name: Copy kibana.yml to /etc/kibana
+  ansible.builtin.template:
+    src: "{{ CUSTOM_DIR_ROLES }}/kibana/files/kibana.yml.j2"
+    dest: /etc/kibana/kibana.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create a kibana certs directory if it does not exist
+  ansible.builtin.file:
+    path: /etc/kibana/certs
+    state: directory
+    mode: '0755'
+
+- name: Copy http_ca.crt to /etc/kibana/certs
+  ansible.builtin.template:
+    src: "{{ CUSTOM_DIR_ROLES }}/kibana/files/http_ca.crt"
+    dest: /etc/kibana/certs/http_ca.crt
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable service kibana
+  ansible.builtin.systemd:
+    name: kibana.service
+    enabled: true
+
+- name: Make sure a service unit is running
+  ansible.builtin.systemd:
+    state: started
+    name: kibana.service
+
+- name: Delete temporary token file
+  ansible.builtin.shell: rm /etc/kibana/main.yml 

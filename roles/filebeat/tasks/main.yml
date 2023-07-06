@@ -1,0 +1,27 @@
+---
+- name: Download and install the Public Signing Key
+  ansible.builtin.shell: wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+
+- name: Save the repository definition to /etc/apt/sources.list.d/elastic-8.x.list
+  ansible.builtin.shell: echo "deb https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-8.x.list
+
+- name: Run apt-get update and install filebeat
+  ansible.builtin.shell: sudo apt-get update && sudo apt-get install filebeat
+
+- name: Copy filebeat.yml to /etc/filebeat
+  ansible.builtin.copy:
+    src: "{{ CUSTOM_DIR_ROLES }}/filebeat/files/filebeat.yml"
+    dest: /etc/filebeat/filebeat.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable service filebeat
+  ansible.builtin.systemd:
+    name: filebeat.service
+    enabled: true
+
+- name: Make sure a service unit is running
+  ansible.builtin.systemd:
+    state: started
+    name: filebeat.service

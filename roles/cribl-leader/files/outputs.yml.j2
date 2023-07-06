@@ -1,0 +1,32 @@
+outputs:
+  cribl-demo:
+    systemFields:
+      - cribl_pipe
+    streamtags: []
+    loadBalanced: true
+    concurrency: 5
+    maxPayloadSizeKB: 4096
+    maxPayloadEvents: 0
+    compress: false
+    rejectUnauthorized: false
+    timeoutSec: 30
+    flushPeriodSec: 1
+    failedRequestLoggingMode: none
+    safeHeaders: []
+    auth:
+      disabled: false
+      authType: manual
+      username: elastic
+      password: ""
+    elasticVersion: auto
+    includeDocId: true
+    onBackpressure: block
+    excludeSelf: false
+    urls:
+      - weight: 1
+        url: https://{{ groups['elasticsearch_monitor'][0] }}:9200/_bulk
+    dnsResolvePeriodSec: 600
+    loadBalanceStatsPeriodSec: 300
+    type: elastic
+    index: cribl-demo
+    notifications: []                    

@@ -1,0 +1,14 @@
+inputs:
+  CriblLogs:
+    type: cribl
+    disabled: false
+    sendToRoutes: false
+    connections:
+      - output: cribl-demo
+  CriblMetrics:
+    type: criblmetrics
+    disabled: false
+    pipeline: cribl_metrics_rollup
+    sendToRoutes: false
+    connections:
+      - output: cribl-demo

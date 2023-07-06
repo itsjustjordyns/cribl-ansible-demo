@@ -1,0 +1,5 @@
+---
+cribl_auth_token: "criblmaster"
+cribl_group: "default"
+cribl_master_port: 4200
+cribl_sources_path: "/opt/cribl/groups/default/local/cribl"

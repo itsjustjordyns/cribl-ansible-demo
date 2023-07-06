@@ -1,0 +1,32 @@
+[data]
+
+[cribl-leader]
+# xxx.xxx.xxx.xxx
+
+[cribl-worker]
+# xxx.xxx.xxx.xxx
+
+[cribl-edge:children]
+cribl-leader
+cribl-worker
+
+[elasticsearch_monitor]
+
+[elasticsearch_primary]
+
+[kibana_monitor]
+
+# [kibana_primary]
+# xxx.xxx.xxx.xxx
+
+[metricbeat:children]
+cribl-leader 
+cribl-worker 
+elasticsearch_monitor 
+kibana_monitor 
+
+[filebeat:children]
+cribl-leader 
+cribl-worker 
+elasticsearch_monitor 
+kibana_monitor

@@ -1,0 +1,87 @@
+---
+- name: Verify correct leader ip
+  debug: var=groups['cribl-leader'][0]
+
+- name: Change the working directory to /opt before executing the command
+  ansible.builtin.shell: curl -Lso - $(curl https://cdn.cribl.io/dl/latest-x64) | tar zxv
+  args:
+    chdir: /opt
+
+- name: Create cribl user
+  ansible.builtin.user:
+    name: cribl
+    comment: Cribl Account User
+    password: '*'
+    create_home: false
+
+- name: Recursively change ownership of cribl directory
+  ansible.builtin.file:
+    path: /opt/cribl
+    state: directory
+    recurse: yes
+    owner: cribl
+    group: cribl
+
+- name: Disable Cribl Stream to start at boot time with systemd
+  ansible.builtin.shell: /opt/cribl/bin/cribl boot-start disable
+  ignore_errors: yes
+
+- name: Enable Cribl Stream to start at boot time with systemd
+  ansible.builtin.shell: /opt/cribl/bin/cribl boot-start enable -m systemd -u cribl
+
+- name: Enable cribl service - worker
+  ansible.builtin.systemd:
+    name: cribl.service
+    state: started
+    enabled: true
+
+- name: Bootstrap worker to leader
+  ansible.builtin.shell: /opt/cribl/bin/cribl mode-worker -H {{ groups['cribl-leader'][0] }} -p {{ cribl_master_port }} -u {{ cribl_auth_token }} -g {{ cribl_group }}
+
+- name: Restart cribl service - worker
+  ansible.builtin.systemd:
+    name: cribl.service
+    state: restarted
+
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: /opt/cribl/local/cribl/auth/certs
+    state: directory
+    mode: '0755'
+
+- name: Add certs to server
+  ansible.builtin.copy:
+    src: "{{ CUSTOM_DIR_ROLES }}/cribl-leader/files/demo-cert.crt"
+    dest: /opt/cribl/local/cribl/auth/certs/demo-cert.crt
+    mode: '0644'
+
+- name: Add keys to server
+  ansible.builtin.copy:
+    src: "{{ CUSTOM_DIR_ROLES }}/cribl-leader/files/demo-key.key"
+    dest: /opt/cribl/local/cribl/auth/certs/demo-key.key
+    mode: '0644'
+
+- name: Add/update certificate name in certificates.yml
+  ansible.builtin.copy:
+    src: "{{ CUSTOM_DIR_ROLES }}/cribl-leader/files/certificates.yml"
+    dest: /opt/cribl/local/cribl/certificates.yml
+    mode: '0644'
+
+- name: Add/up cribl.yml file
+  ansible.builtin.copy:
+    src: "{{ CUSTOM_DIR_ROLES }}/cribl-leader/files/cribl.yml"
+    dest: /opt/cribl/local/cribl/cribl.yml
+    mode: '0644'
+
+- name: Template a file to instance.yml
+  ansible.builtin.template:
+    src: "{{ CUSTOM_DIR_ROLES }}/cribl-worker/files/instance.yml.j2"
+    dest: /opt/cribl/local/_system/instance.yml
+    owner: cribl
+    group: cribl
+    mode: '0644'
+
+- name: Restart cribl service - Worker
+  ansible.builtin.systemd:
+    name: cribl.service
+    state: restarted

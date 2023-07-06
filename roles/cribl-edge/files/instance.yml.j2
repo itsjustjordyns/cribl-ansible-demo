@@ -1,0 +1,13 @@
+distributed:
+  mode: managed-edge
+  master:
+    host: {{ groups['cribl-leader'][0] }}
+    port: {{ cribl_edge_port }}
+    authToken: {{ cribl_auth_token }} 
+    tls:
+      disabled: false
+      requestCert: false
+      certificateName: cribl-demo
+      certPath: $CRIBL_HOME/local/cribl/auth/certs/demo-cert.crt
+      privKeyPath: $CRIBL_HOME/local/cribl/auth/certs/demo-key.key
+  group: {{ cribl_group }}

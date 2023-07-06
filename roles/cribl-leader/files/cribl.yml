@@ -1,0 +1,52 @@
+api:
+  retryCount: 120
+  retrySleepSecs: 5
+  baseUrl: ""
+  disabled: false
+  workerRemoteAccess: false
+  revokeOnRoleChange: true
+  authTokenTTL: 3600
+  idleSessionTTL: 3600
+  headers: {}
+  apiCache:
+    disabled: false
+  ssl:
+    disabled: false
+    certificateName: cribl-demo
+    certPath: $CRIBL_HOME/local/cribl/auth/certs/demo-cert.crt
+    privKeyPath: $CRIBL_HOME/local/cribl/auth/certs/demo-key.key
+  host: 0.0.0.0
+  port: 9000
+  loginRateLimit: 2/second
+  ssoRateLimit: 2/second
+auth:
+  type: local
+  filter_type: email_whitelist
+system:
+  upgrade: api
+  restart: api
+  installType: standalone
+  intercom: true
+  backups:
+    backupsDirectory: $CRIBL_HOME/state/backups
+    backupPersistence: 24h
+  rollback:
+    rollbackEnabled: true
+    rollbackTimeout: 30000
+    rollbackRetries: 5
+    checkInterval: 1000
+upgradeSettings:
+  upgradeSource: cdn
+  disableAutomaticUpgrade: true
+tls:
+  defaultEcdhCurve: auto
+  rejectUnauthorized: true
+upgradeGroupSettings:
+  quantity: 100
+  isRolling: true
+  retryDelay: 1000
+  retryCount: 5
+rollback: {}
+backups: {}
+shutdown:
+  drainTimeout: 10

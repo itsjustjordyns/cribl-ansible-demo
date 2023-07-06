@@ -1,0 +1,23 @@
+[data]
+# xxx.xxx.xxx.xxx
+
+# [elasticsearch_monitor]
+# xxx.xxx.xxx.xxx
+
+# [elasticearch_primary]
+# xxx.xxx.xxx.xxx
+
+# [kibana_monitor]
+# xxx.xxx.xxx.xxx
+
+# [kibana_primary]
+# xxx.xxx.xxx.xxx
+
+# [metricbeat]
+# xxx.xxx.xxx.xxx
+
+# [filebeat]
+# xxx.xxx.xxx.xxx
+
+# [cribl]
+# xxx.xxx.xxx.xxx

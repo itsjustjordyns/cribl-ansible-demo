@@ -1,0 +1,16 @@
+distributed:
+  mode: master
+  master:
+    host: {{ groups['cribl-leader'][0] }}
+    port: {{ cribl_master_port }}
+    tls:
+      disabled: false
+      requestCert: false
+      certificateName: cribl-demo
+      certPath: $CRIBL_HOME/local/cribl/auth/certs/demo-cert.crt
+      privKeyPath: $CRIBL_HOME/local/cribl/auth/certs/demo-key.key
+    ipWhitelistRegex: /.*/
+    maxActiveCxn: 0
+    authToken: {{ cribl_auth_token }}
+    resiliency: none
+    configHelperSocketDir: /tmp 

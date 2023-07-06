@@ -1,0 +1,35 @@
+---
+# - name: Add data to the data server
+#   hosts: data
+#   roles: 
+#     - role: data
+
+- name: Add leader cribl to cribl server
+  hosts: cribl-leader
+  roles: 
+    - role: cribl-leader
+
+- name: Add leader cribl to cribl server
+  hosts: cribl-worker
+  roles: 
+    - role: cribl-worker
+
+# - name: Add leader cribl to cribl server
+#   hosts: cribl-edge
+#   roles: 
+#     - role: cribl-edge
+
+- name: Add elasticsearch 
+  hosts: elasticsearch_monitor
+  roles: 
+    - role: elasticsearch
+
+- name: Add kibana 
+  hosts: kibana_monitor
+  roles: 
+    - role: kibana
+
+# - name: Add filebeat to cribl servers
+#   hosts: filebeat
+#   roles: 
+#     - role: filebeat
