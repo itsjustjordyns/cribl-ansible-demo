@@ -18,6 +18,11 @@
 - name: Run apt-get update and install elasticsearch
   ansible.builtin.shell: sudo apt-get update && sudo apt-get install elasticsearch
 
+# - name: Update apt cache and make sure elasticsearch is installed
+#   ansible.builtin.apt:
+#     name: elasticsearch
+#     update_cache: yes
+
 - name: Copy elasticsearch.yml to /etc/elasticsearch
   ansible.builtin.template:
     src: "{{ CUSTOM_DIR_ROLES }}/elasticsearch/files/elasticsearch.yml.j2"
@@ -58,4 +63,4 @@
     flat: true
 
 - name: Delete temporary password file
-  ansible.builtin.shell: rm /etc/elasticsearch/main.yml                                                                                                                                                                           
+  ansible.builtin.shell: rm /etc/elasticsearch/main.yml                                                                                                                                                            

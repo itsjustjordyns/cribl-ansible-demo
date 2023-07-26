@@ -55,7 +55,7 @@
     mode: '0755'
 
 - name: Copy http_ca.crt to /etc/kibana/certs
-  ansible.builtin.template:
+  ansible.builtin.copy:
     src: "{{ CUSTOM_DIR_ROLES }}/kibana/files/http_ca.crt"
     dest: /etc/kibana/certs/http_ca.crt
     owner: root
@@ -73,4 +73,4 @@
     name: kibana.service
 
 - name: Delete temporary token file
-  ansible.builtin.shell: rm /etc/kibana/main.yml 
+  ansible.builtin.shell: rm /etc/kibana/main.yml
